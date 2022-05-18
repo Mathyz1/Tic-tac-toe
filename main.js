@@ -1,4 +1,4 @@
-const board = [
+let board = [
     ["","",""],
     ["","",""],
     ["","",""]
@@ -9,9 +9,37 @@ let turn = 0; //0=user, 1=pc
 const boardContainer = document.querySelector("#board");
 const playerDiv = document.querySelector("#player");
 
+const contadorPG = document.querySelector(".contador-p-g");
+const contadorPP = document.querySelector(".contador-p-p");
+const contadorPE = document.querySelector(".contador-p-e");
+
+let partidasGanadas = 0;
+let partidasPerdidas = 0;
+let partidasEmpatadas = 0;
+
+contadorPG.textContent = partidasGanadas;
+contadorPP.textContent = partidasPerdidas;
+contadorPE.textContent = partidasEmpatadas;
+
+const btnReset = document.querySelector(".btn-reset");
+
+btnReset.addEventListener("click", e => {
+
+    console.log("board"+board);
+    for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board[i].length; j++) {
+            board[i][j] = "";
+        }
+    };
+    console.log("board"+board);
+    //renderBoard();
+    startGame();
+});
+
 startGame();
 
 function startGame(){
+    btnReset.textContent = "Reiniciar";
     renderBoard();
     turn = Math.random() <= 0.5 ? 0 : 1;
 
@@ -107,7 +135,11 @@ function pcPlays() {
 }
 
 function renderDraw(){
-    playerDiv.textContent = "Draw";
+    playerDiv.textContent = "Empate";
+    btnReset.textContent = "Jugar de nuevo";
+    partidasEmpatadas+=1;
+    console.log(partidasEmpatadas);
+    contadorPE.textContent = partidasEmpatadas;
 }
 
 function checkIfCanWin(){
@@ -192,11 +224,17 @@ function checkIfWinner() {
     
 
     if (res.length > 0) {//hay un ganador
+        btnReset.textContent = "Jugar de nuevo";
         if(res[0][0] == "X"){
-            playerDiv.textContent = "PC Wins";
+            playerDiv.textContent = "Gano la PC";
+            partidasPerdidas+=1;
+            contadorPP.textContent = partidasPerdidas;
             return "PCWon";
         }else{
-            playerDiv.textContent = "User Wins";
+            playerDiv.textContent = "Ganaste!!";
+            turn = 3;
+            partidasGanadas+=1;
+            contadorPG.textContent = partidasGanadas;
             return "UserWon";
         }
     }else{
@@ -213,7 +251,7 @@ function checkIfWinner() {
 }
 
 function renderCurrentPlayer(){
-    playerDiv.textContent = `${turn == 0 ? "Player Turn" : "PC Turn"}`;
+    playerDiv.textContent = `${turn == 0 ? "Tu turno" : "Turno de la PC"}`;
 }
 
 function renderBoard(){
@@ -231,3 +269,4 @@ function renderBoard(){
 //puedo agregarle un contador de ganadas y perdidas con eso
 //mejorar los estilos
 //combinacion para ganarle 00, 11, 10, 20
+//no puedo hacer que el boton de reiniciar funcione, solo reinicia la primera vez, despues no hace nada
