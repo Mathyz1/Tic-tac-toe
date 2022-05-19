@@ -5,6 +5,7 @@ let board = [
 ];
 
 let turn = 0; //0=user, 1=pc
+let jugaste = false;
 
 const boardContainer = document.querySelector("#board");
 const playerDiv = document.querySelector("#player");
@@ -12,6 +13,10 @@ const playerDiv = document.querySelector("#player");
 const contadorPG = document.querySelector(".contador-p-g");
 const contadorPP = document.querySelector(".contador-p-p");
 const contadorPE = document.querySelector(".contador-p-e");
+
+let pos1 = 0;
+let pos2 = 0;
+let pos3 = 0;
 
 let partidasGanadas = 0;
 let partidasPerdidas = 0;
@@ -25,14 +30,12 @@ const btnReset = document.querySelector(".btn-reset");
 
 btnReset.addEventListener("click", e => {
 
-    console.log("board"+board);
     for (let i = 0; i < board.length; i++) {
         for (let j = 0; j < board[i].length; j++) {
             board[i][j] = "";
         }
     };
-    console.log("board"+board);
-    //renderBoard();
+
     startGame();
 });
 
@@ -53,6 +56,7 @@ function startGame(){
 }
 
 function playerPlays(){
+    jugaste = false;
     const cells = document.querySelectorAll(".cell");//ya declaro una constante cells antes mmmm
 
     cells.forEach((cell, i) => {
@@ -62,72 +66,76 @@ function playerPlays(){
 
         if(board[row][column]==""){
             cell.addEventListener("click", e => {
-                board[row][column] = "O";
-                cell.textContent = board[row][column];
+                if (!jugaste) {
+                    board[row][column] = "O";
+                    cell.textContent = board[row][column];
+                    jugaste=true;
+                    turn=1;
+                    const won = checkIfWinner();
 
-                turn=1;
-                const won = checkIfWinner();
-
-                if(won == "none"){
-                    pcPlays();
-                    return;
-                }
-                if(won == "draw"){
-                    renderDraw();
-                    //elimino la misma funcion en la que estoy actualmente
-                    cell.removeEventListener("click", this);
-                    return;
-                }
-                
+                    if(won == "none"){
+                        pcPlays();
+                        return;
+                    }
+                    if(won == "draw"){
+                        renderDraw();
+                        //elimino la misma funcion en la que estoy actualmente
+                        cell.removeEventListener("click", this);
+                        return;
+                    }
+                }  
             });
         }
     });
 }
 
 function pcPlays() {
+    let played = false;
     renderCurrentPlayer();
 
     setTimeout(() => {
-        let played = false;
-        const options = checkIfCanWin();
+        if (!played){
+            const options = checkIfCanWin();
         
-
-        if(options.length > 0){
-            const bestOption = options[0];
-            
-            for (let i = 0; i < bestOption.length; i++) {
+            if(options.length > 0){
+                const bestOption = options[0];
                 
-                if (bestOption[i].value == 0) {
-                    const posi = bestOption[i].i;
-                    const posj = bestOption[i].j;
-                    board[posi][posj]="X";
-                    played = true;
-                    break;
-                }
-                
-            }
-        }else{
-            for (let i = 0; i < board.length; i++) {
-                for (let j = 0; j < board[i].length; j++) {
-                    if (board[i][j] == "" && !played) {
-                        board[i][j] = "X";
+                for (let i = 0; i < bestOption.length; i++) {
+                    
+                    if (bestOption[i].value == 0) {
+                        const posi = bestOption[i].i;
+                        const posj = bestOption[i].j;
+                        board[posi][posj]="X";
                         played = true;
+                        break;
                     }
+                    
                 }
-                
+            }else{
+                for (let i = 0; i < board.length; i++) {
+                    for (let j = 0; j < board[i].length; j++) {
+                        if (board[i][j] == "" && !played) {
+                            board[i][j] = "X";
+                            played = true;
+                        }
+                    }
+                    
+                }
+            }
+            renderBoard();
+
+            const won = checkIfWinner();
+            if(won == "none"){
+                turn = 0;
+                jugaste = false;
+                renderCurrentPlayer();
+                playerPlays();
+            }
+            if(won == "draw"){
+                renderDraw();
             }
         }
-        renderBoard();
-
-        const won = checkIfWinner();
-        if(won == "none"){
-            turn = 0;
-            renderCurrentPlayer();
-            playerPlays();
-        }
-        if(won == "draw"){
-            renderDraw();
-        }
+        
         
         
     },1500);
@@ -138,7 +146,6 @@ function renderDraw(){
     playerDiv.textContent = "Empate";
     btnReset.textContent = "Jugar de nuevo";
     partidasEmpatadas+=1;
-    console.log(partidasEmpatadas);
     contadorPE.textContent = partidasEmpatadas;
 }
 
@@ -225,14 +232,64 @@ function checkIfWinner() {
 
     if (res.length > 0) {//hay un ganador
         btnReset.textContent = "Jugar de nuevo";
+        switch (res[0]) {
+            case s1:
+                pos1 = 1;
+                pos2 = 2;
+                pos3 = 3;
+                break;
+            case s2:
+                pos1 = 4;
+                pos2 = 5;
+                pos3 = 6;
+                break;
+            case s3:
+                pos1 = 7;
+                pos2 = 8;
+                pos3 = 9;
+                break;
+            case s4:
+                pos1 = 1;
+                pos2 = 4;
+                pos3 = 7;
+                break;
+            case s5:
+                pos1 = 2;
+                pos2 = 5;
+                pos3 = 8;
+                break;
+            case s6:
+                pos1 = 3;
+                pos2 = 6;
+                pos3 = 9;
+                break;
+            case s7:
+                pos1 = 1;
+                pos2 = 5;
+                pos3 = 9;
+                break;
+            case s8:
+                pos1 = 3;
+                pos2 = 5;
+                pos3 = 7;
+                break;
+            default:
+                break;
+        }
+
+        const cells = document.querySelectorAll(".cell");
+
+        cells[pos1-1].classList.add("ganador", "p1");
+        cells[pos2-1].classList.add("ganador", "p2");
+        cells[pos3-1].classList.add("ganador", "p3");
+
         if(res[0][0] == "X"){
-            playerDiv.textContent = "Gano la PC";
+            playerDiv.textContent = "Ganó la PC!!";
             partidasPerdidas+=1;
             contadorPP.textContent = partidasPerdidas;
             return "PCWon";
         }else{
             playerDiv.textContent = "Ganaste!!";
-            turn = 3;
             partidasGanadas+=1;
             contadorPG.textContent = partidasGanadas;
             return "UserWon";
