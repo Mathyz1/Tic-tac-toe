@@ -37,6 +37,9 @@ body {
   font-weight: bolder;
   background-color: transparent;
 }
+.cell img{
+  width: 60%;
+}
 
 .ganador{
   background-color: #94bbe9;

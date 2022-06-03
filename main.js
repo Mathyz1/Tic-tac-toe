@@ -68,7 +68,8 @@ function playerPlays(){
             cell.addEventListener("click", e => {
                 if (!jugaste) {
                     board[row][column] = "O";
-                    cell.textContent = board[row][column];
+                    cell.innerHTML = "<img src='/rec.png'/>";
+                    //cell.textContent = board[row][column];
                     jugaste=true;
                     turn=1;
                     const won = checkIfWinner();
@@ -135,9 +136,7 @@ function pcPlays() {
                 renderDraw();
             }
         }
-        
-        
-        
+  
     },1500);
     
 }
@@ -314,7 +313,13 @@ function renderCurrentPlayer(){
 function renderBoard(){
     const html = board.map(row =>{
         const cells = row.map(cell =>{
-            return `<button class="cell">${cell}</button>`
+            let cellContent="";
+            if(cell == "X"){
+                cellContent = "<img src='/close.png'/>";
+            }else if(cell == "O"){
+                cellContent = "<img src='/rec.png'/>";
+            }
+            return `<button class="cell">${cellContent}</button>`
         });
         return `<div class="row">${cells.join("")}</div>`
     });
